@@ -1,19 +1,23 @@
 package observer
 
+import "fmt"
+
 type Customer struct {
-	name  string
-	email string
+	Name  string
+	Email string
 }
 
-func newCustomer(name string, email string) *Customer {
+func NewCustomer(name string, email string) *Customer {
 	return &Customer{
-		name:  name,
-		email: email,
+		Name:  name,
+		Email: email,
 	}
 }
 
-func (c *Customer) update() {}
+func (c *Customer) update(name string) {
+	fmt.Println(name, " is an available now, come to the our shop")
+}
 
 func getEmail(c *Customer) string {
-	return c.email
+	return c.Email
 }
