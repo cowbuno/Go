@@ -5,16 +5,16 @@ import (
 )
 
 func main() {
-	obs1 := observer.NewCustomer("Bob", "bob@gmail.com")
-	obs2 := observer.NewCustomer("Alice", "alice@gmail.com")
-	obs3 := observer.NewCustomer("obs3", "obs3@gmail.com")
-
 	iphone_15 := observer.NewItem("Iphone 15")
 
-	iphone_15.addObserver(obs1)
-	iphone_15.addObserver(obs2)
-	iphone_15.addObserver(obs3)
+	c1 := observer.NewCustomer("Bob", "bob@gmail.com")
+	c2 := observer.NewCustomer("Alice", "alice@gmail.com")
+	c3 := observer.NewCustomer("obs3", "obs3@gmail.com")
 
-	iphone_15.printAllObserver()
+	iphone_15.AddObserver(c1)
+	iphone_15.AddObserver(c2)
+	iphone_15.AddObserver(c3)
+
+	iphone_15.PrintAllObserver()
 
 }

@@ -18,6 +18,6 @@ func (c *Customer) update(name string) {
 	fmt.Println(name, " is an available now, come to the our shop")
 }
 
-func getEmail(c *Customer) string {
+func (c *Customer) getEmail() string {
 	return c.Email
 }

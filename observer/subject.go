@@ -1,8 +1,8 @@
 package observer
 
 type Subject interface {
-	addObserver(o Observer)
-	deleteObserver(o Observer)
-	notifyObservers()
-	printAllObserver()
+	AddObserver(o Observer)
+	DeleteObserver(o Observer)
+	ItemIsAvailable()
+	PrintAllObserver()
 }

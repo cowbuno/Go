@@ -21,7 +21,14 @@ func ItemIsAvailable(i *Item) {
 	i.notifyObservers()
 }
 
-func (i *Item) addObserver(o Observer) {
+func (i *Item) notifyObservers() {
+	for _, observer := range i.observerList {
+		observer.update(i.name)
+	}
+
+}
+
+func (i *Item) AddObserver(o Observer) {
 	i.observerList = append(i.observerList, o)
 }
 
@@ -36,21 +43,14 @@ func getIndex(observerList []Observer, email string) int {
 	return -1
 }
 
-func (i *Item) deleteObserver(o Observer) {
+func (i *Item) DeleteObserver(o Observer) {
 	deleted_email := o.getEmail()
 	index := getIndex(i.observerList, deleted_email)
 	i.observerList = append(i.observerList[:index], i.observerList[index+1:]...)
 
 }
 
-func (i *Item) notifyObservers() {
-	for _, observer := range i.observerList {
-		observer.update(i.name)
-	}
-
-}
-
-func (i *Item) printAllObserver() {
+func (i *Item) PrintAllObserver() {
 	for _, observer := range i.observerList {
 		email := observer.getEmail()
 		fmt.Println(email)
