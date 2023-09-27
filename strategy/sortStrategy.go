@@ -1,5 +1,5 @@
 package strategy
 
 type SortStrategy interface {
-	Sort([]int)
+	Sort([]int) []int
 }

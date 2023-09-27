@@ -3,7 +3,7 @@ package strategy
 type BubbleSort struct {
 }
 
-func (bs *BubbleSort) Sort(arr []int) {
+func (bs *BubbleSort) Sort(arr []int) []int {
 	n := len(arr)
 
 	for i := 0; i < n; i++ {
@@ -13,4 +13,6 @@ func (bs *BubbleSort) Sort(arr []int) {
 			}
 		}
 	}
+
+	return arr
 }
