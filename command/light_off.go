@@ -11,8 +11,8 @@ type LightOffCommand struct {
 	light *Light
 }
 
-func NewLightOffCommand(l *Light) *LightOnCommand {
-	return &LightOnCommand{
+func NewLightOffCommand(l *Light) *LightOffCommand {
+	return &LightOffCommand{
 		light: l,
 	}
 }
