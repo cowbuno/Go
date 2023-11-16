@@ -35,9 +35,12 @@ func main() {
 	pizzaWithCheese := &CheeseTopping{
 		pizza: pizza,
 	}
-	pizzaWithCheeseAndTomato := &TomatoTopping{
+	pizzaWithDoubleCheese := &CheeseTopping{
 		pizza: pizzaWithCheese,
 	}
+	pizzaWithCheeseAndTomato := &TomatoTopping{
+		pizza: pizzaWithDoubleCheese,
+	}
 
-	fmt.Printf("Price of veggeMania with tomato and cheese topping is %d\n", pizzaWithCheeseAndTomato.getPrice())
+	fmt.Printf("Price of veggeMania with tomato and doublecheese topping is %d\n", pizzaWithCheeseAndTomato.getPrice())
 }
