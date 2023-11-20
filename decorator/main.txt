@@ -1,0 +1,43 @@
+package main 
+
+import "fmt"
+
+type IPizza interface{
+    GetPrice() int
+}
+
+type VeggieMania struct{}
+
+func (p *VeggieMania) GetPrice() int{
+    return 15
+}
+
+type TomatoTopping struct{
+    Pizza IPizza
+}
+
+func (tt *TomatoTopping) GetPrice() int {
+    return tt.GetPrice() + 2
+}
+
+type CheeseTopping struct{
+    Pizza IPizza
+}
+
+func (ct CheeseTopping) GetPrice() int {
+    return ct.GetPrice() + 3
+}
+
+func main(){
+    pizza := &VeggieMania{}
+
+    pizzaWithChees := CheeseTopping{
+        Pizza: pizza,
+    }
+
+    pizzaWithCheeseAndTomato := TomatoTopping{
+        pizza: pizzaWithChees,
+    }
+
+    fmt.Println("pizza with cheese and tomato:", pizzaWithCheeseAndTomato.GetPrice())
+}

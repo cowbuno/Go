@@ -1,0 +1,83 @@
+package main 
+
+import "fmt"
+
+type Subject interface{
+    Register(o Observer)
+    Unregister(o Observer)
+    NotifyAll()
+}
+
+type Item struct{
+    ObsList []Observer
+    Name string
+    InStock bool
+}
+
+func NewItem(name string) *Item{
+    return &Item{
+        Name: name,
+    }
+}
+
+func (i *Item) Register(o Observer){
+    ObsList = append(ObsList, o)
+}
+
+func(i *Item) NotifyAll(){
+    for _, observer := range ObsList{
+        observer.Update(i.Name)
+    }
+}
+
+func(i *Item) UpdateAvailability(){
+    i.InStock = true
+    i.NotifyAll()
+}
+
+func(i *Item) Unregister(o Observer){
+    for i, obs := range ObsList{
+        if obs.Id == o.Id{
+            n := len(i.ObsList)
+            i.ObsList[i] = i.ObsList[n-1]
+            i.ObsList = i.ObsList[:n-1]
+        }
+    }
+}
+
+type Observer interface{
+    Update(string)
+    GetId() string
+}
+
+type Customer struct{
+    Id string
+}
+
+func NewCustomer(id string) *Customer{
+    return &Customer{
+        Id: id,
+    }
+}
+
+func (c *Customer) Update(item string){
+    fmt.Printf("send to %s about updating %s \n", c.Id, item)
+}
+
+func (c *Customer) GetId() stirng{
+    return c.Id
+}
+
+func main(){
+    AirEezy := NewItem("air eezy")
+    bob := NewCustomer("bob@gmail.com")
+    anny := NewCustomer("anny@gmail.com")
+    steve := NewCustomer("steve@gmail.com")
+
+    AirEezy.Register(bob)
+    AirEezy.Register(anny)
+    AirEezy.Register(steve)
+
+    AirEezy.UpdateAvailability()
+    
+}

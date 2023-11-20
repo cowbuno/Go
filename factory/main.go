@@ -12,7 +12,7 @@ type Gun struct {
 }
 
 func (g *Gun) getCharachteristic() string {
-	return fmt.Sprintf("Gun name:%s \nGun power:\n", g.name)
+	return fmt.Sprintf("Gun name:%s \nGun power:%d \n", g.name, g.power)
 }
 
 type Ak47 struct {

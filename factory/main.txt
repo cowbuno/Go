@@ -1,0 +1,59 @@
+package main
+
+import "fmt"
+
+type IGun interface{
+    GetCharacteristic()
+}
+
+type Gun struct{
+    Name string
+    Power int
+}
+
+func(g Gun) GetCharacteristic(){
+    return Sprintf("Name: %s\n Power %d\n", g.Name, g.Power)
+}
+
+type Ak47 struct{
+    Gun
+}
+
+func NewAk47() IGun{
+    return &Gun{
+        name: "Ak47",
+        power: 16,
+    }
+}
+
+type Musket struct{
+    Gun
+}
+
+func NewMusket() IGun{
+    return &Gun{
+        name: "Musket",
+        power: 13,
+    }
+}
+
+func GetGun(name string) (IGun, error){
+    if name == "Ak47"{
+        return NewAk47, nil
+    }
+
+    if name == "Musket"{
+        return NewMusket, nil
+    }
+
+    return nil, fmt.Errorf("gun don't have gun")
+
+}
+
+func main(){
+    Ak47, _ := GetGun("Ak47")
+    Ak47.GetCharacteristic()
+
+    Musket, _ := GetGun("Musket")
+    Musket.GetCharacteristic
+}
