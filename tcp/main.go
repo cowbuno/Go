@@ -1,40 +1,49 @@
 package main
 
 import (
-	"bufio"
+	"encoding/json"
 	"fmt"
-	"log"
-	"net"
+	"net/http"
 )
 
-func main() {
-	li, err := net.Listen("tcp", ":8080")
-
-	if err != nil {
-		log.Panic(err)
-	}
-
-	defer li.Close()
-
-	for {
-		conn, err := li.Accept()
-		if err != nil {
-			log.Println(err)
-		}
-		go handle(conn)
-	}
+type RequestBody struct {
+	Message string `json:"message"`
 }
 
-func handle(conn net.Conn) {
-	scanner := bufio.NewScanner(conn)
-	for scanner.Scan() {
-		ln := scanner.Text()
-		fmt.Println(ln)
-		fmt.Fprintf(conn, "I hear you say %s \n", ln)
-	}
+type Response struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
 
-	defer conn.Close()
+func main() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
 
-	fmt.Println("code got here.")
+		decoder := json.NewDecoder(r.Body)
+		var requestBody RequestBody
 
+		err := decoder.Decode(&requestBody)
+		if err != nil {
+			http.Error(w, "Invalid JSON message", http.StatusBadRequest)
+			return
+		}
+
+		if requestBody.Message != "" {
+			fmt.Printf("Received message: %s\n", requestBody.Message)
+			response := Response{Status: "success", Message: "Data successfully received"}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(response)
+		} else {
+			http.Error(w, "Invalid JSON message", http.StatusBadRequest)
+			return
+		}
+	})
+
+	port := 8080
+	fmt.Printf("Server is running on port %d\n", port)
+	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }
