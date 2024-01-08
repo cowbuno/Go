@@ -1,54 +1,105 @@
 package main
 
 import (
+	"SDP/internal/models"
+	"errors"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
 
-	files := []string{
-		"../ui/html/base.html",
-		"../ui/html/pages/home.html",
-		"../ui/html/partials/nav.html",
-	}
+	// files := []string{
+	// 	"../ui/html/base.html",
+	// 	"../ui/html/pages/home.html",
+	// 	"../ui/html/partials/nav.html",
+	// }
 
-	ts, err := template.ParseFiles(files...)
+	// ts, err := template.ParseFiles(files...)
+
+	// if err != nil {
+	// 	app.serveError(w, r, err)
+	// 	return
+	// }
+
+	// err = ts.ExecuteTemplate(w, "base", nil)
+	// if err != nil {
+	// 	app.serveError(w, r, err)
+	// }
+
+	snippets, err := app.snippets.Latest()
 
 	if err != nil {
-		log.Print(err.Error())
-		http.Error(w, "Internal Server Error", http.StatusMethodNotAllowed)
-		return
+		app.serveError(w, r, err)
 	}
 
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		log.Print(err.Error())
-		http.Error(w, "Internal Server Error", http.StatusMethodNotAllowed)
-		return
+	for _, s := range snippets {
+		fmt.Fprintf(w, "%+v\n", s)
 	}
+
 }
 
-func snippetView(w http.ResponseWriter, r *http.Request) {
+func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
-	fmt.Fprintf(w, "Display a specific snippet with ID %d...", id)
+
+	snippet, err := app.snippets.Get(id)
+
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serveError(w, r, err)
+		}
+		return
+	}
+
+	files := []string{
+		"../ui/html/base.html",
+		"../ui/html/partials/nav.html",
+		"../ui/html/pages/view.html",
+	}
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serveError(w, r, err)
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["Snippet"] = snippet
+
+	err = ts.ExecuteTemplate(w, "base", templateData{
+		Data: data,
+	})
+	if err != nil {
+		app.serveError(w, r, err)
+	}
 }
-func snippetCreate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
+	// if r.Method != http.MethodPost {
+	// 	w.Header().Set("Allow", http.MethodPost)
+	// 	app.clientError(w, http.StatusMethodNotAllowed)
+	// 	return
+	// }
+
+	title := "0 snail"
+	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
+	expires := 7
+
+	id, err := app.snippets.Insert(title, content, expires)
+
+	if err != nil {
+		app.serveError(w, r, err)
 		return
 	}
-	w.Write([]byte("Create a new snippet..."))
+	http.Redirect(w, r, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
 }

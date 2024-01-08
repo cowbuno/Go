@@ -1,33 +1,63 @@
 package main
 
 import (
+	"SDP/internal/models"
+	"database/sql"
 	"flag"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
+type application struct {
+	logger   *slog.Logger
+	snippets *models.SnippetModel
+}
+
 func main() {
-	loggerHandler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{})
-	logger := slog.New(loggerHandler)
-
-	logger.Info("request received", "method", "GET", "path", "/")
-
 	addr := flag.String("addr", ":4000", "HTTP network address")
+	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
 	flag.Parse()
-	mux := http.NewServeMux()
-	log.Print(*addr)
-	fileServer := http.FileServer(http.Dir("../ui/static/"))
 
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet/view", snippetView)
-	mux.HandleFunc("/snippet/create", snippetCreate)
+	db, err := openDB(*dsn)
 
-	log.Print("starting server on", *addr)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
 
-	err := http.ListenAndServe(*addr, mux)
-	log.Fatal(err)
+	defer db.Close()
+
+	app := &application{
+		logger: logger,
+		snippets: &models.SnippetModel{
+			DB: db,
+		},
+	}
+
+	mux := app.routes()
+
+	logger.Info("starting server", "addr", *addr)
+
+	err = http.ListenAndServe(*addr, mux)
+	logger.Error(err.Error())
+	os.Exit(1)
+}
+
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+
+	}
+	err = db.Ping()
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+	return db, nil
 }
